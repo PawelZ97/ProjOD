@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<link rel="stylesheet" type="text/css" href="https://pi.iem.pw.edu.pl/~zychp/od/dashboardStyle.css">
+{% endblock %}
+
+{% block content %}
+<div class="formClass">
+  <div class="formheaderClass">
+    <a href="/zychp/webNotes/logout">Wyloguj</a>
+    <br>
+    <br>
+    Witaj {{ username }}!
+    <br>
+    <br>
+    <form id="downloadForm" method="POST" action="" enctype="multipart/form-data">
+      <input type="submit" value="Odśwież notatki" />
+    </form>
+    <h3>Twoje pliki:</h3>
+  </div>
+  <div class="notesList">
+    {% for file in noteslist %}
+    <div class="noteElement">
+        <h4>Note {{loop.index}</h4>
+    </div>
+    <div class="clearElement"></div>
+    {% else %}
+    Brak plików
+    {% endfor %}
+  </div>
+  <div style="clear:both"></div>
+</div>
+{% endblock %}

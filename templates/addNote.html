@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<link rel="stylesheet" type="text/css" href="https://pi.iem.pw.edu.pl/~zychp/od/uploadStyle.css">
+{% endblock %}
+
+{% block content %}
+<div class="formClass">
+    <div class="formheaderClass">
+        <a href="/zychp/webNotes/logout">Wyloguj</a>
+        <br>
+        <br>
+        Witaj {{ username }}! <br>    
+        <h3>Dodaj notatkę</h3>
+    </div>
+    <div class="errClass">
+    </div>
+    <div style="clear:both"></div>
+</div>
+{% endblock %}

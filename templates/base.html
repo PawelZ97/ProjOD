@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>WebNotes</title>
+    <link rel="stylesheet" type="text/css" href="https://pi.iem.pw.edu.pl/~zychp/od/baseStyle.css">
+    {% block header %}
+    {% endblock %}
+</head>
+
+<body>
+    <div class="pageClass">
+        <div class="headerClass">
+            <h1>OD WebNotes</h1>
+        </div>
+        <div class="navClass">
+            <nav>
+                <div class="navLinkClass">
+                    <a href="https://isod.ee.pw.edu.pl">ISOD</a>
+                </div>
+                <div class="navLinkClass">
+                    <a href="/zychp/webNotes/base">Base</a>
+                </div>
+                <div class="navLinkClass">
+                    <a href="/zychp/webNotes/register">Register</a>
+                </div>
+                <div class="navLinkClass">
+                    <a href="/zychp/webNotes/login">Login</a>
+                </div>
+                <div class="navLinkClass">
+                    <a href="/zychp/webNotes/dashboard">Dashboard</a>
+                </div>
+                <div class="navLinkClass">
+                    <a href="/zychp/webNotes/addNote">Add Note</a>
+                </div>
+                <div style="clear: both"></div>
+            </nav>
+        </div>
+        <div class="mainClass">
+            {% block content %}
+            {{ message }}
+            {% endblock %}
+        </div>
+        <footer>
+            OD 2019 | Paweł Zych
+        </footer>
+    </div>
+</body>
+
+</html>
