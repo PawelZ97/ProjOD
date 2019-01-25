@@ -1,5 +1,8 @@
 from flask import Flask, redirect, request, render_template, session
-import hashlib, uuid, json
+from flask_sqlalchemy import SQLAlchemy
+import hashlib
+import uuid
+import json
 
 
 app = Flask(__name__)
@@ -8,12 +11,22 @@ app.config.from_pyfile('NoSecretThere.cfg')  # for SECRET_KEY
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_PATH'] = "/zychp/webnotes"
 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+db = SQLAlchemy(app)
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(120), unique=True, nullable=False)
+    
+   
 @app.route('/zychp/webnotes/base') 
 def baseTest():
     return render_template("base.html")
 
 
-@app.route('/zychp/webnotes/register')
+@app.route('/zychp/webnotes/register', methods=['GET', 'POST'])
 def registerTest():
     return render_template("register.html")
 
@@ -36,8 +49,8 @@ def login():
 def logout():
     username = checkUserLogin()
     if (username):
-        session.pop('username',None)
-        session.pop('uuid',None)
+        session.pop('username', None)
+        session.pop('uuid', None)
     return redirect('/zychp/webnotes/login')
 
 
@@ -63,13 +76,14 @@ def doLogin():
     users_credentials = getUsersCredentials()
 
     for user in users_credentials:
-        hashpass = hashlib.sha256(request.form['password'].encode()).hexdigest() 
+        hashpass = hashlib.sha256(request.form['password'].encode()).hexdigest()
         if username == user and hashpass == users_credentials[user]:
             user_uuid = str(uuid.uuid4())
             session['username'] = username
             session['uuid'] = user_uuid
             return True
     return False
+
 
 def checkUserLogin():
     users_credentials = getUsersCredentials()
@@ -84,10 +98,11 @@ def checkUserLogin():
         print("Brak ciastka")
         return False
 
+
 def getUsersCredentials():
     dbfile = open('database.json', 'r')
     database = json.loads(dbfile.read())
     users_credentials = {}
     for user_data in database['userslist']:
-        users_credentials[user_data['login']] =  user_data['password']      
+        users_credentials[user_data['login']] = user_data['password']
     return users_credentials
