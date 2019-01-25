@@ -1,5 +1,8 @@
 from flask import Flask, redirect, request, render_template, session
 from flask_sqlalchemy import SQLAlchemy
+import hashlib
+import binascii
+import os
 
 app = Flask(__name__)
 
@@ -83,7 +86,7 @@ def doLogin():
 
     loggingUser = User.query.filter_by(email=email).first()
     if (loggingUser):
-        if(loggingUser.password == password):
+        if(verify_password(loggingUser.password, password)):
             session['email'] = email
             return email
         else:
@@ -101,7 +104,7 @@ def registerNewUser():
 
     if((User.query.filter_by(email=email).first()) is None):
         if(password == repassword):
-            createdUser = User(email=email, password=password)
+            createdUser = User(email=email, password=hash_password(password))
             db.session.add(createdUser)
             db.session.commit()
             print("Register succesful")
@@ -121,3 +124,22 @@ def checkUserLogin():
     else:
         print("Brak ciastka")
         return False
+
+
+def hash_password(password):
+    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
+    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), 
+                                  salt, 100000)
+    pwdhash = binascii.hexlify(pwdhash)
+    return (salt + pwdhash).decode('ascii')
+
+
+def verify_password(stored_password, provided_password):
+    salt = stored_password[:64]
+    stored_password = stored_password[64:]
+    pwdhash = hashlib.pbkdf2_hmac('sha512', 
+                                  provided_password.encode('utf-8'), 
+                                  salt.encode('ascii'), 
+                                  100000)
+    pwdhash = binascii.hexlify(pwdhash).decode('ascii')
+    return pwdhash == stored_password
