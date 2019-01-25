@@ -29,11 +29,9 @@ def registerTest():
     else:
         if request.method == 'POST':
             if(registerNewUser()):
-                return render_template("base.html",
-                                       message="Poprawna rejestracja")
+                return render_template("base.html", message="Poprawna rejestracja")
             else:
-                return render_template("base.html",
-                                       message="Hasła nie zgadzają się")
+                return render_template("base.html", message="Hasła nie zgadzają się")
         else:
             return render_template("register.html")
 
@@ -101,12 +99,18 @@ def registerNewUser():
     password = request.form['password']
     repassword = request.form['repassword']
 
-    if(password == repassword):
-        createdUser = User(email=email, password=password)
-        db.session.add(createdUser)
-        db.session.commit()
-        return True
+    if((User.query.filter_by(email=email).first()) is None):
+        if(password == repassword):
+            createdUser = User(email=email, password=password)
+            db.session.add(createdUser)
+            db.session.commit()
+            print("Register succesful")
+            return True
+        else:
+            print("Passwords not match")
+            return False
     else:
+        print("User exist")
         return False
 
 
