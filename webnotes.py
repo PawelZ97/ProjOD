@@ -1,55 +1,56 @@
-from flask import Flask, session, request, redirect, render_template, send_from_directory
-import json, uuid, hashlib
+from flask import Flask, redirect, request, render_template, session
+import hashlib, uuid, json
+
 
 app = Flask(__name__)
 
 app.config.from_pyfile('NoSecretThere.cfg')  # for SECRET_KEY
 app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_PATH'] = "/zychp/"
+app.config['SESSION_COOKIE_PATH'] = "/zychp/webnotes"
 
-@app.route('/zychp/webNotes/base') 
+@app.route('/zychp/webnotes/base') 
 def baseTest():
     return render_template("base.html")
 
 
-@app.route('/zychp/webNotes/register')
+@app.route('/zychp/webnotes/register')
 def registerTest():
     return render_template("register.html")
 
 
-@app.route('/zychp/webNotes/login', methods=['GET', 'POST'])
+@app.route('/zychp/webnotes/login', methods=['GET', 'POST'])
 def login():
     if (checkUserLogin()):
         return render_template("base.html", message="Już zalogowany.")
     else:
         if request.method == 'POST':
             if doLogin():
-                return redirect("/zychp/webNotes/fileslist")
+                return redirect("/zychp/webnotes/dashboard")
             else:
                 return render_template("login.html", error="Niepoprawny login lub/i hasło")
         else:
             return render_template("login.html")
 
 
-@app.route('/zychp/webNotes/logout')
+@app.route('/zychp/webnotes/logout')
 def logout():
     username = checkUserLogin()
     if (username):
         session.pop('username',None)
         session.pop('uuid',None)
-    return redirect('/zychp/webNotes/login')
+    return redirect('/zychp/webnotes/login')
 
 
-@app.route('/zychp/webNotes/dashboard')
+@app.route('/zychp/webnotes/dashboard')
 def dashboard():
     username = checkUserLogin()
     if (username):
         return render_template("dashboard.html", username=username)
     else:                  
-        return redirect('/zychp/webNotes/login')
+        return redirect('/zychp/webnotes/login')
     
 
-@app.route('/zychp/webNotes/addNote', methods=['GET', 'POST'])
+@app.route('/zychp/webnotes/addNote', methods=['GET', 'POST'])
 def upload():
     username = checkUserLogin()
     if (username):
