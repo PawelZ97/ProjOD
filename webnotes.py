@@ -33,10 +33,23 @@ def register():
         return render_template("base.html", message="Już zalogowany.")
     else:
         if request.method == 'POST':
-            if(registerNewUser()):
-                return render_template("base.html", message="Poprawna rejestracja")
+            email = request.form['email']
+            password = request.form['password']
+            repassword = request.form['repassword']
+
+            if(checkEmail(email) and checkPassword(password) and checkPassword(repassword)):
+                if((User.query.filter_by(email=email).first()) is None):
+                    if(password == repassword):
+                        createdUser = User(email=email, password=hash_password(password))
+                        db.session.add(createdUser)
+                        db.session.commit()
+                        return render_template("base.html", message='Rejestracja poprawna')
+                    else:
+                        return render_template("register.html", passwordErr="Podane hasła nie są zgodne")
+                else:
+                    return render_template("register.html", emailErr="Email zajęty")
             else:
-                return render_template("base.html", message="Hasła nie zgadzają się")
+                return render_template("register.html", emailErr="Niepoprawne dane")
         else:
             return render_template("register.html")
 
@@ -76,11 +89,16 @@ def login():
         return render_template("base.html", message="Już zalogowany.")
     else:
         if request.method == 'POST':
-            if doLogin():
-                return redirect("/dashboard")
-            else:
-                return (render_template("login.html",
-                        error="Niepoprawny login lub/i hasło"))
+            email = request.form['email']
+            password = request.form['password']
+
+            if(checkEmail(email) and checkPassword(password)):
+                loggingUser = User.query.filter_by(email=email).first()
+                if (loggingUser):
+                    if(verify_password(loggingUser.password, password)):
+                        session['email'] = email
+                        return redirect('/dashboard')
+            return (render_template("login.html", error="Niepoprawny login lub/i hasło"))
         else:
             return render_template("login.html")
 
@@ -91,6 +109,7 @@ def logout():
     if (email):
         session.pop('email', None)
     return redirect('/login')
+
 
 @app.route('/')
 @app.route('/dashboard')
@@ -110,50 +129,6 @@ def upload():
         return render_template("addNote.html", email=email)
     return render_template("base.html", message='Nie zalogowano.')
 
-
-def doLogin():
-    email = request.form['email']
-    password = request.form['password']
-
-    if(checkEmail(email) and checkPassword(password)):
-        loggingUser = User.query.filter_by(email=email).first()
-        if (loggingUser):
-            if(verify_password(loggingUser.password, password)):
-                session['email'] = email
-                return email
-            else:
-                print("Wrong password")
-                return False
-        else:
-            print("User do not exist")
-            return False
-    else:
-        print("Wrong input")
-        return False
-
-
-def registerNewUser():
-    email = request.form['email']
-    password = request.form['password']
-    repassword = request.form['repassword']
-
-    if(checkEmail(email) and checkPassword(password) and checkPassword(repassword)):
-        if((User.query.filter_by(email=email).first()) is None):
-            if(password == repassword):
-                createdUser = User(email=email, password=hash_password(password))
-                db.session.add(createdUser)
-                db.session.commit()
-                print("Register succesful")
-                return True
-            else:
-                print("Passwords not match")
-                return False
-        else:
-            print("User exist")
-            return False
-    else:
-        print("Wrong input")
-        return False
 
 def checkUserLogin():
     if(session):
