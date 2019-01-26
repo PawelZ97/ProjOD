@@ -41,6 +41,35 @@ def register():
             return render_template("register.html")
 
 
+@app.route('/changepassword', methods=['GET', 'POST'])
+def changePassword():
+    email = checkUserLogin()
+    if (email):
+        if request.method == 'POST':
+            oldpassword = request.form['oldpassword']
+            password = request.form['password']
+            repassword = request.form['repassword']
+
+            if(checkPassword(oldpassword) and checkPassword(password) and checkPassword(repassword)):
+                loggingUser = User.query.filter_by(email=email).first()
+                
+                if(verify_password(loggingUser.password, oldpassword)):
+                    if(password == repassword):
+                        loggingUser.password = hash_password(password)
+                        db.session.commit()
+                        return render_template("base.html", message='Hasło zmienione')
+                    else:
+                        return render_template("changePassword.html", email=email, passwordErr="Podane nowe hasła nie są zgodne")
+                else:
+                    return render_template("changePassword.html", email=email, oldpasswordErr="Podane hasło nie jest poprawne")
+            else:
+                return render_template("changePassword.html", email=email, oldpasswordErr="Hasła nie zgodne z zaleceniami")
+        else:
+            return render_template("changePassword.html", email=email)
+    else:
+        return render_template("login.html")
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if (checkUserLogin()):
@@ -125,7 +154,6 @@ def registerNewUser():
     else:
         print("Wrong input")
         return False
-
 
 def checkUserLogin():
     if(session):

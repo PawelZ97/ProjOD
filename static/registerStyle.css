@@ -30,11 +30,12 @@
     float: left;
     padding-right: 10px;
     font-size: 12px;
-    display:inline-block;
-    color: red;
+    padding-left: 30px;
 }
 
 .errTextClass
 {
     height: 35px;
+    color: red;
+    font: bolder;
 }
