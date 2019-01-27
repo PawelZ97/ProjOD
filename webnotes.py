@@ -1,14 +1,17 @@
+# -*- coding: utf-8 -*-
+
 from flask import Flask, redirect, request, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 import hashlib
 import binascii
 import os
 import re
+import time
 
 app = Flask(__name__)
 
 app.config.from_pyfile('NoSecretThere.cfg')  # for SECRET_KEY
-app.config['SESSION_COOKIE_SECURE'] = False  # debug local
+app.config['SESSION_COOKIE_SECURE'] = False  # Should be True
 app.config['SESSION_COOKIE_PATH'] = "/"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -19,7 +22,7 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
+    password = db.Column(db.String(120), nullable=False) 
 
 
 @app.route('/base')
@@ -98,6 +101,7 @@ def login():
                     if(verify_password(loggingUser.password, password)):
                         session['email'] = email
                         return redirect('/dashboard')
+            time.sleep(3)
             return (render_template("login.html", error="Niepoprawny login lub/i hasło"))
         else:
             return render_template("login.html")
